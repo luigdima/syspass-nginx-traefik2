@@ -1,7 +1,7 @@
 version: "3.5"
 
 services:
-    web:
+    http:
       container_name: syspass-http
       build: ./build/http
       restart: always
@@ -14,8 +14,10 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=proxy"
+        - "traefik.http.services.pass.loadbalancer.server.port=8000"
         - "traefik.http.routers.pass.entrypoints=web"
         - "traefik.http.routers.pass.rule=Host(`${FQDN_DOMAIN}`)"
+        - "traefik.http.services.pass-s.loadbalancer.server.port=8000"
         - "traefik.http.routers.pass-s.entrypoints=websecure"
         - "traefik.http.routers.pass-s.rule=Host(`${FQDN_DOMAIN}`)"
         - "traefik.http.routers.pass-s.tls=true"
