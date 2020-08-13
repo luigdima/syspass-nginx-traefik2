@@ -1,0 +1,68 @@
+version: "3.5"
+
+services:
+    web:
+      container_name: syspass-http
+      build: ./build/http
+      restart: always
+      links:
+        - db
+        - code
+      volumes:
+        - syspass:/var/www/html
+        - db-socket:/run/mysqld
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=proxy"
+        - "traefik.http.routers.pass.entrypoints=web"
+        - "traefik.http.routers.pass.rule=Host(`${FQDN_DOMAIN}`)"
+        - "traefik.http.routers.pass-s.entrypoints=websecure"
+        - "traefik.http.routers.pass-s.rule=Host(`${FQDN_DOMAIN}`)"
+        - "traefik.http.routers.pass-s.tls=true"
+        - "traefik.http.routers.pass-s.tls.certresolver=myresolver"
+        - "traefik.http.middlewares.pass-rs.redirectscheme.scheme=https"
+      networks:
+        - proxy
+        - backend
+
+    code:
+      container_name: syspass-code
+      build: ./build/code
+      volumes:
+        - syspass:/var/www/html
+      networks:
+        - proxy
+        - backend
+
+    db:
+      container_name: syspass-db
+      restart: always
+      image: mariadb:10.2
+      environment:
+        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+        - MYSQL_DATABASE=${MYSQL_DATABASE}
+        - MYSQL_USER=${MYSQL_USER}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      ports:
+        - "3306"
+      volumes:
+        - db-lib:/var/lib/mysql
+        - db-socket:/run/mysqld
+      networks:
+        - backend
+
+volumes:
+  syspass: {}
+  db-lib: {}
+  db-socket: {}
+
+networks:
+  backend:
+    driver:
+      bridge
+    name:
+      backend
+    external: false
+  proxy:
+    name: proxy
+    external: true
