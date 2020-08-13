@@ -12,3 +12,5 @@ LABEL maintainer="luigdima" \
     org.label-schema.schema-version="1.0"
 
 COPY nginx_default.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 8000

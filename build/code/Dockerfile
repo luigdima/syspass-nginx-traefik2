@@ -56,7 +56,5 @@ RUN chmod 755 /usr/local/sbin/entrypoint.sh
 COPY --from=bootstrap /app/sysPass/ ${SYSPASS_DIR}/
 COPY --from=bootstrap /usr/bin/composer /usr/bin/
 
-EXPOSE 8000
-
 ENTRYPOINT ["/usr/local/sbin/entrypoint.sh"]
 CMD ["init"]
